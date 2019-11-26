@@ -1,13 +1,9 @@
 const SCALES = {
-  EMAIL: 5,
   URGENCY: 5,
-  SPELL: 1,
-  GREET: 2,
-  PERSONAL: 5,
-  URLS: 3
+  CONFRIM: 6
 };
-
-const THRESH = 15;
+const TOTALSCALE = 20;
+const THRESH = 7;
 
 function emailCheck(email) {
   let scale = 0;
@@ -50,57 +46,79 @@ function emailCheck(email) {
   return scale;
 }
 
-function spellCheck(word) {}
+function URLcheck(body) {
+  url = body.match(
+    /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+  );
+  if (url) return 2;
+  return 0;
+}
 
-function greetingCheck(greeting) {}
+function greetingCheck(greeting) {
+  let scale = 0;
+  for (i = 0; i < 5; i++) {
+    let found = GREETINGS.find(greet => {
+      greeting[i] === greet;
+    });
+    if (found) scale += 1;
+    if (scale > 1) return 2;
+  }
+  return scale;
+}
 
-function urgencyCheck(word) {}
+function urgencyCheck(word) {
+  let found = URGENCY_WORDS.find(w => w === word);
+  if (found) return 5 / 3;
+  return 0;
+}
 
-function confirmCheck(word) {}
+function confirmCheck(word) {
+  let found = CONFIRMING_WORDS.find(w => w === word);
+  if (found) return 2;
+  return 0;
+}
 
 function dictionaryCheck(body) {
+  body.replace(/[.,'\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\r?\n|\r/g, " "); // Remove special chars
   let words = body.split(" ");
-  words = words.filter(w => Boolean(w)); //Remove Newlines and Returns
+  words = words.filter(w => Boolean(w)); //Remove falsey values
   let greeting = words.splice(0, 5);
-
-  let greetVal = greetingCheck(greeting); // Check Greeting
-  let urgVal = 0;
-  let spellVal = 0;
-  let confirmVal = 0;
-
-  /**
-   *  For each word in body check:
-   *  1. Urgency words
-   *  2. Spelling
-   *  3. Confirm Words
-   * */
-
+  let grtScale = greetingCheck(greeting);
+  let urgScale = 0;
+  let cfmScale = 0;
   words.forEach(word => {
-    urgVal += urgencyCheck(word);
-    spellVal += spellCheck(word);
-    confirmVal += confirmCheck(word);
+    if (urgScale < SCALES.URGENCY) urgScale += urgencyCheck(word);
+    if (cfmScale < SCALES.CONFRIM) cfmScale += confirmCheck(word);
   });
-
-  // RESCALE VALUES FIRST!
-  // return greetVal + urgVal + spellVal + confirmVal;
+  return { grtScale, urgScale, cfmScale };
 }
+
 function phishCheck(email, body) {
-  let val1 = emailCheck(email);
-  let val2 = dictionaryCheck(body);
-  let result = 0;
-  scaleValues.forEach(val => (result += val));
+  let eScale = emailCheck(email);
+  let urlScale = URLcheck(body);
+  let dictScale = dictionaryCheck(body);
+  let { grtScale, urgScale, cfmScale } = dictScale;
+  console.log(
+    "email:",
+    eScale,
+    "URL",
+    urlScale,
+    "greet:",
+    grtScale,
+    "urgency",
+    urgScale,
+    "confirm",
+    cfmScale
+  );
+  let result =
+    (eScale + urlScale + dictScale + grtScale + urgScale + cfmScale) /
+    TOTALSCALE;
   return result;
 }
-
 function onSubmit() {
   let email = document.getElementById("email").value.toLowerCase();
-  let body = document
-    .getElementById("email-body")
-    .value.toLowerCase()
-    .replace(/[.,'\/#!$%\^&\*;:{}=\-_`~()]/g, "") // Remove Puntuation
-    .replace(/\r?\n|\r/g, " "); // Remove Newlines and Returns
-
-  // let result = phishCheck(email, body);
-  // console.log(result)
+  let body = document.getElementById("email-body").value.toLowerCase();
+  let phishPercentage = phishCheck(email, body);
+  console.log(phishPercentage);
   // Show result on Graph/Scale
 }

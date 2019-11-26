@@ -28,7 +28,13 @@ var GREETINGS = [
   "heyy",
   "heyyy",
   "customer",
-  "valued"
+  "valued",
+  "to",
+  "whom",
+  "who",
+  "it",
+  "may",
+  "concern"
 ];
 
 var URGENCY_WORDS = [
