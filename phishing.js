@@ -6,15 +6,9 @@ const SCALES = {
   PERSONAL: 5,
   URLS: 3
 };
+
 const THRESH = 15;
-const DOMAINS = [
-  "yahoo.com",
-  "hotmail.com",
-  "gmail.com",
-  "outlook.com",
-  "icloud.com",
-  "aol.com"
-];
+
 function emailCheck(email) {
   let scale = 0;
   let idx = email.lastIndexOf("@");
@@ -52,7 +46,9 @@ function emailCheck(email) {
 
 function dictionaryCheck(body) {
   let words = body.split(" ");
+  words = words.filter(w => Boolean(w)); //Remove Newlines and Returns
   let greet = words.splice(0, 5);
+
   // greetingCheck(greet);
 
   words.forEach(word => {
@@ -74,16 +70,13 @@ function phishCheck(email, body) {
 }
 
 function onSubmit() {
-  let email = document
-    .getElementById("email")
-    .innerText()
-    .toLowerCase();
+  let email = document.getElementById("email").value.toLowerCase();
   let body = document
     .getElementById("email-body")
-    .innerText()
-    .toLowerCase()
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-  let result = phishCheck(email, body);
+    .value.toLowerCase()
+    .replace(/[.,'\/#!$%\^&\*;:{}=\-_`~()]/g, "") //Remove Puntuation
+    .replace(/\r?\n|\r/g, " ");
+  // let result = phishCheck(email, body);
   // console.log(result)
   // Show result on Graph/Scale
 }
