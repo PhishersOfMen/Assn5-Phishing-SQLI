@@ -10,7 +10,12 @@ var CONFIRMING_WORDS = [
   "remove",
   "removal",
   "need",
-  "password"
+  "password",
+  "account",
+  "fbi",
+  "irs",
+  "nsa",
+  "cia"
 ];
 
 var GREETINGS = [
@@ -62,7 +67,8 @@ var URGENCY_WORDS = [
   "warning",
   "order",
   "legal",
-  "must"
+  "must",
+  "quickly"
 ];
 var DOMAINS = [
   "yahoo.com",
