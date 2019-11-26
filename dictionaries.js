@@ -15,7 +15,8 @@ var CONFIRMING_WORDS = [
   "fbi",
   "irs",
   "nsa",
-  "cia"
+  "cia",
+  "hacked"
 ];
 
 var GREETINGS = [
