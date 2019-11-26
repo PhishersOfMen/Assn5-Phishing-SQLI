@@ -1,0 +1,8 @@
+['urgent','problem','illegal','arrested','now!',
+'free','earn','double','money','opportunity',
+'cash','deal','click','100%','spam',
+'junk','guarentee','nigerian','obligation','gimmick',
+'middleman','priority','warranty''unlimited','win',
+'winner','winning','don't','wait','dont',
+'selected','cancel','sign','up','warning',
+'order','legal','must']
