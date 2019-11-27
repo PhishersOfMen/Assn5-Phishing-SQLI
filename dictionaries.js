@@ -16,7 +16,13 @@ var CONFIRMING_WORDS = [
   "irs",
   "nsa",
   "cia",
-  "hacked"
+  "hacked",
+  "hack",
+  "check",
+  "checks",
+  "arrived",
+  "approved",
+  "approve"
 ];
 
 var GREETINGS = [
@@ -34,7 +40,14 @@ var GREETINGS = [
   "who",
   "it",
   "may",
-  "concern"
+  "concern",
+  "arrived",
+  "congrats",
+  "subscriber",
+  "confirm",
+  "confirmation",
+  "start",
+  "reclaim"
 ];
 
 var URGENCY_WORDS = [
@@ -75,8 +88,17 @@ var URGENCY_WORDS = [
   "order",
   "legal",
   "must",
-  "quickly"
+  "quickly",
+  "claim",
+  "gift",
+  "lock",
+  "unlock",
+  "locked",
+  "unlocked",
+  "approval",
+  "approved"
 ];
+
 var DOMAINS = [
   "yahoo.com",
   "hotmail.com",

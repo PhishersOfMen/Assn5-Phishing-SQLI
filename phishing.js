@@ -1,48 +1,23 @@
-const SCALES = {
-  URGENCY: 5,
-  CONFRIM: 6
-};
+const SCALES = { URGENCY: 5, CONFRIM: 6 };
 const TOTALSCALE = 20;
-const THRESH = 7;
+const THRESH = 0.33;
 
 function emailCheck(email) {
   let scale = 0;
   let idx = email.lastIndexOf("@");
   id = email.slice(0, idx);
   dmn = email.slice(idx + 1);
-  len1 = id.length();
-  len2 = dmn.length();
-
+  len1 = id.length;
+  len2 = dmn.length;
   // Check Email ID for Number Count >= 3
-  numCount = 0;
-  for (i = 0; i < len1; i++) {
-    if (typeof id[i] === "number") numCount++;
-    if (numCount >= 3) {
-      scale += 2;
-      break;
-    }
-  }
-
-  // Check Email Domain for Number Count >= 1
-  numCount = 0;
-  for (i = 0; i < len2; i++) {
-    if (typeof dmn[i] === "number") numCount++;
-    if (numCount >= 1) {
-      scale += 2;
-      break;
-    }
-  }
-
+  idNums = id.replace(/\D/g, "");
+  if (idNums && idNums.length >= 3) scale += 2;
+  // Check Email Domain for Number Count > 0
+  dmnNums = dmn.replace(/\D/g, "");
+  if (dmnNums && dmnNums.length > 0) scale += 2;
   // Check Email Domain for Common Domain
-  let isCommon = false;
-  DOMAINS.forEach(d => {
-    if (d === dmn) {
-      isCommon = true;
-      break;
-    }
-  });
-  if (!isCommon) scale += 1;
-
+  let found = DOMAINS.find(d => d === dmn);
+  if (!found) scale += 1;
   return scale;
 }
 
@@ -56,10 +31,8 @@ function URLcheck(body) {
 
 function greetingCheck(greeting) {
   let scale = 0;
-  for (i = 0; i < 5; i++) {
-    let found = GREETINGS.find(greet => {
-      greeting[i] === greet;
-    });
+  for (i = 0; i < 3; i++) {
+    let found = GREETINGS.find(greet => greeting[i] === greet);
     if (found) scale += 1;
     if (scale > 1) return 2;
   }
@@ -79,10 +52,12 @@ function confirmCheck(word) {
 }
 
 function dictionaryCheck(body) {
-  body.replace(/[.,'\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\r?\n|\r/g, " "); // Remove special chars
+  body = body
+    .replace(/[.,'\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+    .replace(/\r?\n|\r/g, " "); // Remove special chars
   let words = body.split(" ");
   words = words.filter(w => Boolean(w)); //Remove falsey values
-  let greeting = words.splice(0, 5);
+  let greeting = words.splice(0, 3);
   let grtScale = greetingCheck(greeting);
   let urgScale = 0;
   let cfmScale = 0;
@@ -98,27 +73,32 @@ function phishCheck(email, body) {
   let urlScale = URLcheck(body);
   let dictScale = dictionaryCheck(body);
   let { grtScale, urgScale, cfmScale } = dictScale;
-  console.log(
-    "email:",
-    eScale,
-    "URL",
-    urlScale,
-    "greet:",
-    grtScale,
-    "urgency",
-    urgScale,
-    "confirm",
-    cfmScale
-  );
-  let result =
-    (eScale + urlScale + dictScale + grtScale + urgScale + cfmScale) /
-    TOTALSCALE;
-  return result;
+  return { eScale, urlScale, grtScale, urgScale, cfmScale };
 }
 function onSubmit() {
   let email = document.getElementById("email").value.toLowerCase();
   let body = document.getElementById("email-body").value.toLowerCase();
-  let phishPercentage = phishCheck(email, body);
-  console.log(phishPercentage);
+  let phishScales = phishCheck(email, body);
+  const { eScale, urlScale, grtScale, urgScale, cfmScale } = phishScales;
+  let phishPercentage =
+    (eScale + urlScale + grtScale + urgScale + cfmScale) / TOTALSCALE;
+
+  // TODO:
+  console.log("Phishing Percentage: ", phishPercentage);
+
+  if (phishPercentage >= THRESH) {
+    console.log(
+      "This email was flagged as a phishing attack based on the following criteria:"
+    );
+    console.log("Uncommon Email: ", (eScale / TOTALSCALE) * 100, "%");
+    console.log("Contains URLs: ", (urlScale / TOTALSCALE) * 100, "%");
+    console.log("Uncommon Greeting: ", (grtScale / TOTALSCALE) * 100, "%");
+    console.log("Urgency Words: ", (urgScale / TOTALSCALE) * 100, "%");
+    console.log(
+      "Confirmation/Personal Information Words: ",
+      (cfmScale / TOTALSCALE) * 100,
+      "%"
+    );
+  }
   // Show result on Graph/Scale
 }
