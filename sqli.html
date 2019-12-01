@@ -13,7 +13,7 @@
     <div class="container">
         <label for="query">SQL Query</label>
         <textarea name="query" id="query" cols="30" rows="10"></textarea>
-        <button class="btn">Submit</button>
+        <button class="btn" onclick="process()">Submit</button>
 
         <div id="results" class="contaner">
             <span id="emoji"></span>
@@ -21,6 +21,8 @@
             <p id="issues"></p>
         </div>
     </div>
+    <script src="sqli.js"></script>
+    <script src="utils.js"></script>
 </body>
 
 </html>

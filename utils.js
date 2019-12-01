@@ -7,7 +7,7 @@ const emojiCodes = [
 ];
 
 
-function getEmojiByPercentage(percentage) {
+function getEmojiAndColorByPercentage(percentage) {
     if (percentage < 0.2) {
         return [
             String.fromCodePoint(emojiCodes[0]),
@@ -36,7 +36,7 @@ function getEmojiByPercentage(percentage) {
     }
 }
 
-export function setScale(percentage) {
+function setScale(percentage) {
     let scaleEl = document.querySelector("#scale");
     let emojiEl = document.getElementById("emoji");
     let emoji = getEmojiAndColorByPercentage(percentage);
