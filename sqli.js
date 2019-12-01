@@ -2,6 +2,7 @@ import {setScale} from 'utils';
 
 const sqlCommands="select|drop|create|alter|update|insert";
 const sqlKeywords="AND|OR";
+const MAXSCALE = 35;
 
 function midQueryComment(query) {
     let commentRE = new RegExp(`--.*(${sqlCommands}|${sqlKeywords})`, "mgi");
@@ -99,7 +100,31 @@ function process() {
 
 function score(results) {
     // TODO: generate score
-    let percentage;
+    let percentage = ((results.midQueryComment + results.tautology + results.illegal + results.union + results.piggyback + results.inference + results.altEncoding) / MAXSCALE) * 100; 
+    let comment = "Not Found";
+    let taut = "Not Found";
+    let ill = "Not Found";
+    let un = "Not Found";
+    let piggy = "Not Found";
+    let infer = "Not Found";
+    let alt = "Not Found";
+    
+    if (results.midQueryComment > 0) comment = "Instance Found";
+    if (results.tautology > 0) taut = "Instance Found";
+    if (results.illegal > 0) ill = "Instance Found";
+    if (results.union > 0) un = "Instance Found";
+    if (results.piggyback > 0) piggy = "Instance Found";
+    if (results.inference > 0) infer = "Instance Found";
+    if (results.altEncoding > 0) alt = "Instance Found";
+
+    let message = `Comment:\t\t${comment}
+    Tautology:\t\t${taut}
+    Illegal Query:\t\t${ill}
+    Union Query:\t\t${un}
+    Piggy-Backed Query:\t${piggy}
+    Inference:\t\t${infer}
+    Alternate Encoding:\t${alt}`
+
 
     
     setScale(percentage);
