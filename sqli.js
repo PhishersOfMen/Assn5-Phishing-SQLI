@@ -22,24 +22,17 @@ function tautology(query) {
     if (where != null) {
         let sub1 = query.substring(where + 6);
 
-        let or = sub1.matchAll(/or/i);
+        let tautInstances = sub1.match(/[^\s]+=[^\s]+/img);
         
-        if (or[0] != null) {
-            for (let i = 0; i < or.length; i++) {
-                let sub2 = sub1.substring(or[i] + 3);
-                let test = sub2.indexOf("=");
-                
-                let lhs = sub2.substring(0,test);
-                let rhs = sub2.substring(test+1,2*test+1);
-
-                if (lhs == rhs) {
-                    return 4;
-                }
+        for (const instance of tautInstances) {
+            let [a, b] = instance.split("=");
+            if (a == b && /or/i.test(sub1)) {
+                return 4;
             }
         }
-
-        return 0;
     }
+
+    return 0;
 }
 
 // #3
@@ -67,7 +60,7 @@ function union(query) {
 
 // Highest
 function piggyback(query) {
-    let piggybackRE = new RegExp(`;\s*(${sqlCommands})`, "igm");
+    let piggybackRE = new RegExp(`;\\s*(${sqlCommands})`, "igm");
     let piggybackInstance = query.match(piggybackRE);
 
     if (piggybackInstance != null) {
@@ -84,14 +77,17 @@ function inference(query) {
 
     let falseInstanceScore = 0;
     let waitforInstanceScore = waitforInstance? 4:0;
-
-    for (const match of falseInstance) {
-        let [a,b] = match.split("=");
-        if (a.match(/[a-z]+/img)[0].length == a.length) {
-            continue;
-        } else {
-            falseInstanceScore = 3
-        }  
+    if (falseInstance) {
+        for (const match of falseInstance) {
+            let [a,_] = match.split("=");
+            let alpha = a.match(/[a-z]+/img);
+            if (alpha && alpha[0].length == a.length) {
+                continue;
+            } else {
+                falseInstanceScore = 3;
+                break;
+            }
+        }
     }
 
     return falseInstanceScore + waitforInstanceScore
@@ -99,7 +95,7 @@ function inference(query) {
 
 function altEncoding(query) {
     let altEncodingRE = new RegExp(`exec|char|ascii`, "igm");
-    let hexRE = new RegExp(`((0x)?[0-9a-f]+)`, "igm");
+    let hexRE = new RegExp(`((0x)?[0-9a-f]{5,})`, "igm");
     let altEncodingInstance = query.match(altEncodingRE);
     let hexInstance = query.match(hexRE);
 
@@ -125,8 +121,8 @@ function process() {
 }
 
 function score(results) {
-    // TODO: generate score
-    let percentage = ((results.midQueryComment + results.tautology + results.illegal + results.union + results.piggyback + results.inference + results.altEncoding) / MAXSCALE) * 100; 
+    let percentage = ((results.midQueryComment + results.tautology + results.illegal + results.union + results.piggyback + results.inference + results.altEncoding) / MAXSCALE); 
+    console.log(results, {percentage});
     let comment = "Not Found";
     let taut = "Not Found";
     let ill = "Not Found";
@@ -135,26 +131,33 @@ function score(results) {
     let infer = "Not Found";
     let alt = "Not Found";
     
-    if (results.midQueryComment > 0) comment = "Instance Found";
-    if (results.tautology > 0) taut = "Instance Found";
-    if (results.illegal > 0) ill = "Instance Found";
-    if (results.union > 0) un = "Instance Found";
-    if (results.piggyback > 0) piggy = "Instance Found";
+    if (results.midQueryComment > 0) comment = "Has at least one comment";
+    if (results.tautology > 0) taut = "Has an instance of tautology";
+    if (results.illegal > 0) ill = "Has illegal SQL command";
+    if (results.union > 0) un = "Found UNION with another SELECT query";
+    if (results.piggyback > 0) piggy = "Potential piggybacked query found";
     if (results.inference > 0) infer = "Instance Found";
-    if (results.altEncoding > 0) alt = "Instance Found";
+    if (results.altEncoding > 0) alt = "Potentially using alternative encoding";
 
-    let message = `Comment:\t\t${comment}
-    Tautology:\t\t${taut}
-    Illegal Query:\t\t${ill}
-    Union Query:\t\t${un}
-    Piggy-Backed Query:\t${piggy}
-    Inference:\t\t${infer}
-    Alternate Encoding:\t${alt}`
+    let message = spanify`This query was flagged as a${percentage > 1-TOLERANCE? "lmost certainly an":" possible"} SQL Injection attack based on the following criteria:${null}${"lead"}`;
+    message += `<span><strong>Comment:</strong> ${comment}</span>
+    <span><strong>Tautology:</strong> ${taut}</span>
+    <span><strong>Illegal Query:</strong> ${ill}</span>
+    <span><strong>Union Query:</strong> ${un}</span>
+    <span><strong>Piggy-Backed Query:</strong> ${piggy}</span>
+    <span><strong>Inference:</strong> ${infer}</span>
+    <span><strong>Alternate Encoding:</strong> ${alt}</span>`
 
     let issues = document.getElementById("issues");
 
-    if (percentage > TOLERANCE) issues.textContent = message;
+    let percentageEl = document.getElementById("scale");
+    percentageEl.innerHTML = spanify`SQL Injection Likelyhood: ${Math.floor(percentage * 100)}%`;
 
-    setScale(percentage);
-    // TODO: send to #results
+    if (percentage > TOLERANCE) {
+        issues.innerHTML = message;
+    } else {
+        issues.innerHTML = ''
+    }
+
+    setScale(percentage, TOLERANCE);
 }

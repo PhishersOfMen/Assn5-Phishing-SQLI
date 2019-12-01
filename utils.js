@@ -1,46 +1,42 @@
 const emojiCodes = [
     0x1F607,    // Smiling Halo
-    0x1F642,    // Slightly Smiling
     0x1F928,    // Raised Eyebrow
-    0x1F627,    // Anguished
     0x1F631     // Screaming in fear
 ];
 
-
-function getEmojiAndColorByPercentage(percentage) {
-    if (percentage < 0.2) {
-        return [
-            String.fromCodePoint(emojiCodes[0]),
-            "" // pick color
-        ];
-    } else if (percentage < 0.4) {
-        return [
-            String.fromCodePoint(emojiCodes[1]),
-            "" // pick color
-        ];
-    } else if (percentage < 0.6) {
-        return [
-            String.fromCodePoint(emojiCodes[2]),
-            "" // pick color
-        ];
-    } else if (percentage < 0.8) {
-        return [
-            String.fromCodePoint(emojiCodes[3]),
-            "" // pick color
-        ];
+function spanify(strings, value = null, cl='') {
+    if (value != null) {
+        return `<span${cl?` class="${cl}"`:""}>${strings[0]}${value}${strings[1]}</span>`;
     } else {
-        return [
-            String.fromCodePoint(emojiCodes[4]),
-            "" // pick color
-        ];
+        return `<span${cl?` class="${cl}"`:""}>${strings[0]}</span>`;
     }
 }
 
-function setScale(percentage) {
+function getEmojiAndColorByPercentage(percentage, threshold) {
+    if (percentage < threshold) {
+        return String.fromCodePoint(emojiCodes[0]);
+    } else if (percentage > 1-threshold) {
+        return String.fromCodePoint(emojiCodes[2]);
+    } else {
+        return String.fromCodePoint(emojiCodes[1]);
+    }
+}
+
+function setScale(percentage, threshold) {
     let scaleEl = document.querySelector("#scale");
+    let resultsEl = document.getElementById("results");
     let emojiEl = document.getElementById("emoji");
-    let emoji = getEmojiAndColorByPercentage(percentage);
+    let emoji = getEmojiAndColorByPercentage(percentage, threshold);
 
     emojiEl.innerText = emoji;
-    scaleEl.width
+    if (percentage < threshold) {
+        resultsEl.classList.remove("danger", "warning");
+        resultsEl.classList.add("success");
+    } else if (percentage > 1-threshold) {
+        resultsEl.classList.remove("success", "warning");
+        resultsEl.classList.add("danger");
+    } else {
+        resultsEl.classList.remove("success", "danger");
+        resultsEl.classList.add("warning");
+    }
 }
