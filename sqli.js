@@ -1,13 +1,19 @@
-import {setScale} from 'utils';
-
 const sqlCommands="select|drop|create|alter|update|insert";
 const sqlKeywords="AND|OR";
 
 function midQueryComment(query) {
     let commentRE = new RegExp(`--.*(${sqlCommands}|${sqlKeywords})`, "mgi");
+    let commentInstance = query.search(commentRE);
 
+    if (commentInstance >= 0) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
+// #4
 function tautology(query) {     
     let where = query.search(/where/i);
 
@@ -25,61 +31,80 @@ function tautology(query) {
                 let rhs = sub2.substring(test+1,2*test+1);
 
                 if (lhs == rhs) {
-                    return {"Assert True": true};
+                    return 4;
                 }
             }
         }
 
-        return {"Assert True": false};
+        return 0;
     }
 }
 
+// #3
 function illegal(query) { 
     let illegalInstance = query.search(/convert/i);
 
-    if (illegalInstance != null) {
-        return {convert: true};
+    if (illegalInstance >= 0) {
+        return 7;
     }
     else {
-        return {convert: false};
+        return 0;
     }
 }
 
 function union(query) {
-    let unionInstance = query.search(/union select/i);
+    let unionInstance = query.search(/union\s+select/i);
 
-    if (unionInstance != null) {
-        return {'UNION SELECT': true};
+    if (unionInstance >= 0) {
+        return 2;
     }
     else {
-        return {'UNION SELECT': false};
+        return 0;
     }
 }
 
+// Highest
 function piggyback(query) {
     let piggybackRE = new RegExp(`;\s*(${sqlCommands})`, "igm");
     let piggybackInstance = query.match(piggybackRE);
 
     if (piggybackInstance != null) {
-        return {piggyback: true};
+        return 9;
     } else {
-        return {piggyback: false};
+        return 0;
     }
 }
 
+// Higher
 function inference(query) {
-    // TODO: code this
+    let falseInstance = query.match(/[^\s]+=[^\s]+/img);
+    let waitforInstance = query.match(/waitfor/igm);
+
+    let falseInstanceScore = 0;
+    let waitforInstanceScore = waitforInstance? 4:0;
+
+    for (const match of falseInstance) {
+        let [a,b] = match.split("=");
+        if (a.match(/[a-z]+/img)[0].length == a.length) {
+            continue;
+        } else {
+            falseInstanceScore = 3
+        }  
+    }
+
+    return falseInstanceScore + waitforInstanceScore
 }
 
 function altEncoding(query) {
-    let altEncodingRE = new RegExp(`((exec|char|ascii)\()|((0x)?[0-9a-f]+)`, "igm");
+    let altEncodingRE = new RegExp(`exec|char|ascii`, "igm");
+    let hexRE = new RegExp(`((0x)?[0-9a-f]+)`, "igm");
     let altEncodingInstance = query.match(altEncodingRE);
+    let hexInstance = query.match(hexRE);
 
-    if (altEncodingInstance != null) {
-        return {altEncoding: true};
-    } else {
-        return {altEncoding: false};
-    }
+    let altScore = altEncodingInstance?4:0;
+    let hexScore = hexInstance?1:0;
+
+    return altScore + hexScore;
 }
 
 function process() {
@@ -101,7 +126,7 @@ function score(results) {
     // TODO: generate score
     let percentage;
 
-    
+
     setScale(percentage);
     // TODO: send to #results
 }
