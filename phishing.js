@@ -86,19 +86,22 @@ function onSubmit() {
   // TODO:
   console.log("Phishing Percentage: ", phishPercentage);
 
+  let percentageEl = document.getElementById("scale");
+  percentageEl.innerHTML = spanify`Likelyhood of Phishing: ${phishPercentage * 100}%`;
+
+  
+  let results = '';
+  let issuesEl = document.getElementById("issues");
+
   if (phishPercentage >= THRESH) {
-    console.log(
-      "This email was flagged as a phishing attack based on the following criteria:"
-    );
-    console.log("Uncommon Email: ", (eScale / TOTALSCALE) * 100, "%");
-    console.log("Contains URLs: ", (urlScale / TOTALSCALE) * 100, "%");
-    console.log("Uncommon Greeting: ", (grtScale / TOTALSCALE) * 100, "%");
-    console.log("Urgency Words: ", (urgScale / TOTALSCALE) * 100, "%");
-    console.log(
-      "Confirmation/Personal Information Words: ",
-      (cfmScale / TOTALSCALE) * 100,
-      "%"
-    );
+    results += spanify`This email was flagged as a${percentage > 1-TOLERANCE? "lmost certainly a":" possible"} phishing attack based on the following criteria:${null}${"lead"}`;
+    results += spanify`<strong>Uncommon Email:</strong> ${(eScale / TOTALSCALE) * 100}%`;
+    results += spanify`<strong>Contains URLs:</strong> ${(urlScale / TOTALSCALE) * 100 }%`;
+    results += spanify`<strong>Uncommon Greeting:</strong> ${(grtScale / TOTALSCALE) * 100}%`;
+    results += spanify`<strong>Urgency Words:</strong> ${(urgScale / TOTALSCALE) * 100}%`;
+    results += spanify`<strong>Confirmation/Personal Information Words:</strong> ${(cfmScale / TOTALSCALE) * 100}%`;
   }
+  issuesEl.innerHTML = results;
   // Show result on Graph/Scale
+  setScale(phishPercentage, THRESH);
 }

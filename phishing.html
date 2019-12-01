@@ -17,9 +17,14 @@
       <label for="body">Email Body</label>
       <textarea name="body" id="email-body" cols="30" rows="10"></textarea>
       <button class="btn" onclick="onSubmit()">Submit</button>
-      <p id="results"></p>
+      <div id="results" class="container">
+        <span id="emoji"></span>
+        <span id="scale"></span>
+        <div id="issues" class="container"></div>
+      </div>
     </div>
     <script src="phishing.js"></script>
+    <script src="utils.js"></script>
     <script src="dictionaries.js"></script>
   </body>
 </html>
