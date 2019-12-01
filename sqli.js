@@ -1,6 +1,7 @@
 const sqlCommands="select|drop|create|alter|update|insert";
 const sqlKeywords="AND|OR";
 const MAXSCALE = 35;
+const TOLERANCE = 0.2;
 
 function midQueryComment(query) {
     let commentRE = new RegExp(`--.*(${sqlCommands}|${sqlKeywords})`, "mgi");
@@ -150,7 +151,9 @@ function score(results) {
     Inference:\t\t${infer}
     Alternate Encoding:\t${alt}`
 
+    let issues = document.getElementById("issues");
 
+    if (percentage > TOLERANCE) issues.textContent = message;
 
     setScale(percentage);
     // TODO: send to #results
