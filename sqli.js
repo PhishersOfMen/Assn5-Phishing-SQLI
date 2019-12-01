@@ -1,5 +1,11 @@
+import {setScale} from 'utils';
+
+const sqlCommands="select|drop|create|alter|update|insert";
+const sqlKeywords="AND|OR";
+
 function midQueryComment(query) {
-    // TODO: code this
+    let commentRE = new RegExp(`--.*(${sqlCommands}|${sqlKeywords})`, "mgi");
+
 }
 
 function tautology(query) {     
@@ -51,7 +57,14 @@ function union(query) {
 }
 
 function piggyback(query) {
-    // TODO: code this
+    let piggybackRE = new RegExp(`;\s*(${sqlCommands})`, "igm");
+    let piggybackInstance = query.match(piggybackRE);
+
+    if (piggybackInstance != null) {
+        return {piggyback: true};
+    } else {
+        return {piggyback: false};
+    }
 }
 
 function inference(query) {
@@ -59,7 +72,14 @@ function inference(query) {
 }
 
 function altEncoding(query) {
-    // TODO: code this
+    let altEncodingRE = new RegExp(`((exec|char|ascii)\()|((0x)?[0-9a-f]+)`, "igm");
+    let altEncodingInstance = query.match(altEncodingRE);
+
+    if (altEncodingInstance != null) {
+        return {altEncoding: true};
+    } else {
+        return {altEncoding: false};
+    }
 }
 
 function process() {
@@ -79,5 +99,9 @@ function process() {
 
 function score(results) {
     // TODO: generate score
+    let percentage;
+
+    
+    setScale(percentage);
     // TODO: send to #results
 }

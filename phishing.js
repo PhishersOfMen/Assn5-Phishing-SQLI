@@ -1,3 +1,5 @@
+import {setScale} from 'utils';
+
 const SCALES = { URGENCY: 5, CONFRIM: 6 };
 const TOTALSCALE = 20;
 const THRESH = 0.33;
@@ -101,4 +103,5 @@ function onSubmit() {
     );
   }
   // Show result on Graph/Scale
+  setScale(phishPercentage);
 }

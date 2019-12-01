@@ -7,16 +7,40 @@ const emojiCodes = [
 ];
 
 
-function getEmojiByPercentage(percent) {
-    if (percent < 0.2) {
-        return String.fromCodePoint(emojiCodes[0])
-    } else if (percent < 0.4) {
-        return String.fromCodePoint(emojiCodes[1])
-    } else if (percent < 0.6) {
-        return String.fromCodePoint(emojiCodes[2])
-    } else if (percent < 0.8) {
-        return String.fromCodePoint(emojiCodes[3])
+function getEmojiByPercentage(percentage) {
+    if (percentage < 0.2) {
+        return [
+            String.fromCodePoint(emojiCodes[0]),
+            "" // pick color
+        ];
+    } else if (percentage < 0.4) {
+        return [
+            String.fromCodePoint(emojiCodes[1]),
+            "" // pick color
+        ];
+    } else if (percentage < 0.6) {
+        return [
+            String.fromCodePoint(emojiCodes[2]),
+            "" // pick color
+        ];
+    } else if (percentage < 0.8) {
+        return [
+            String.fromCodePoint(emojiCodes[3]),
+            "" // pick color
+        ];
     } else {
-        return String.fromCodePoint(emojiCodes[4])
+        return [
+            String.fromCodePoint(emojiCodes[4]),
+            "" // pick color
+        ];
     }
+}
+
+export function setScale(percentage) {
+    let scaleEl = document.querySelector("#scale");
+    let emojiEl = document.getElementById("emoji");
+    let emoji = getEmojiAndColorByPercentage(percentage);
+
+    emojiEl.innerText = emoji;
+    scaleEl.width
 }
